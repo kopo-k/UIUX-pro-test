@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, MessageCircle, CheckCircle2, Clock, Eye, TrendingUp } from "lucide-react";
+import { Heart, MessageCircle, CheckCircle2, Clock, Search, Sparkles, Shield, Zap, Trophy } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 // モックデータ
@@ -94,10 +95,22 @@ const questions = [
   },
 ];
 
-const trendingQuestions = [
-  { id: "5", title: "Next.js App RouterでのSSRとSSGの使い分け", answers: 8 },
-  { id: "4", title: "Gitでコンフリクトが発生した時の対処法", answers: 7 },
-  { id: "2", title: "Python仮想環境の作り方がわかりません", answers: 5 },
+const siteFeatures = [
+  {
+    icon: Shield,
+    title: "初心者にやさしい",
+    description: "どんな質問でも歓迎。みんな最初は初心者でした。",
+  },
+  {
+    icon: Zap,
+    title: "ポイントで成長",
+    description: "質問・回答・解決でポイントGET。ランクアップを目指そう！",
+  },
+  {
+    icon: Trophy,
+    title: "称号・バッジ",
+    description: "活動に応じてバッジを獲得。あなたの実績を証明します。",
+  },
 ];
 
 function getBadgeColor(badge: string) {
@@ -131,12 +144,20 @@ export default function HomePage() {
 
         <main className="flex-1 px-6 py-6">
           {/* ページタイトル */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
+          <div className="mb-6">
+            <div className="mb-4">
               <h1 className="text-2xl font-bold text-foreground">質問一覧</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 みんなの疑問を解決しよう
               </p>
+            </div>
+            {/* 検索欄 */}
+            <div className="relative max-w-xl">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="キーワードで質問を検索..."
+                className="pl-10 h-11 bg-white border shadow-sm focus-visible:ring-2"
+              />
             </div>
           </div>
 
@@ -157,9 +178,9 @@ export default function HomePage() {
 
           <div className="flex gap-6">
             {/* 質問リスト（メイン） */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-6">
               {filteredQuestions.map((question) => (
-                <Link key={question.id} href={`/questions/${question.id}`}>
+                <Link key={question.id} href={`/questions/${question.id}`} className="block">
                   <Card className="transition-all hover:shadow-lg hover:border-primary/30 cursor-pointer">
                     <CardContent className="p-5">
                       <div className="flex gap-4">
@@ -173,10 +194,6 @@ export default function HomePage() {
                           )}>
                             {question.answers}
                             <div className="text-xs font-normal">回答</div>
-                          </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            {question.views}
                           </div>
                         </div>
 
@@ -271,34 +288,33 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* サイドパネル（トレンド） */}
+            {/* サイドパネル（サイトの特徴） */}
             <div className="hidden xl:block w-80 shrink-0">
               <Card className="sticky top-24">
                 <CardContent className="p-4">
                   <h3 className="flex items-center gap-2 mb-4 font-semibold text-foreground">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    トレンドの質問
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    プログラム特区の特徴
                   </h3>
-                  <div className="space-y-3">
-                    {trendingQuestions.map((q, index) => (
-                      <Link
-                        key={q.id}
-                        href={`/questions/${q.id}`}
-                        className="flex items-start gap-3 group"
-                      >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                          {index + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                            {q.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {q.answers}件の回答
-                          </p>
+                  <div className="space-y-4">
+                    {siteFeatures.map((feature) => {
+                      const Icon = feature.icon;
+                      return (
+                        <div key={feature.title} className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                            <Icon className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {feature.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {feature.description}
+                            </p>
+                          </div>
                         </div>
-                      </Link>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

@@ -2,42 +2,43 @@
 
 import Link from "next/link";
 import {
-  Settings,
-  Trophy,
   Flame,
   Award,
   CheckCircle2,
   MessageCircle,
-  Calendar,
-  MapPin,
-  LinkIcon,
-  Edit,
+  Zap,
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+// ランク判定関数
+function getRank(points: number) {
+  if (points >= 1000) return { name: "ウィザード", icon: "🧙", color: "bg-purple-100 text-purple-700 border-purple-300" };
+  if (points >= 500) return { name: "デベロッパー", icon: "💻", color: "bg-blue-100 text-blue-700 border-blue-300" };
+  return { name: "ビギナー", icon: "🌱", color: "bg-emerald-100 text-emerald-700 border-emerald-300" };
+}
+
+// 次のランクまでの情報
+function getNextRank(points: number) {
+  if (points >= 1000) return null; // 最高ランク
+  if (points >= 500) return { name: "ウィザード", required: 1000, icon: "🧙" };
+  return { name: "デベロッパー", required: 500, icon: "💻" };
+}
 
 // モックデータ
 const userData = {
   name: "yamada",
   displayName: "山田太郎",
   avatar: "",
-  bio: "フロントエンドエンジニア。React/TypeScript が得意です。初心者の質問にも丁寧に回答することを心がけています。",
-  location: "東京都",
-  website: "https://example.com",
-  joinedAt: "2023年6月",
-  title: "ベテラン回答者",
-  titleIcon: Trophy,
+  points: 470, // 現在のポイント
   stats: {
-    solvedCount: 47,
-    bestAnswerRate: 68,
-    weeklyContribution: 12,
-    totalAnswers: 124,
-    totalQuestions: 8,
+    questionCount: 8,
+    answerCount: 25,
+    bestAnswerCount: 12,
+    empathyReceived: 35,
   },
   expertTags: [
     { name: "React", isHot: true, count: 45 },
@@ -46,37 +47,24 @@ const userData = {
     { name: "Next.js", isHot: true, count: 15 },
   ],
   badges: [
-    { id: "1", name: "React達人", icon: "🥇", description: "Reactで50問解決" },
-    { id: "2", name: "連続回答7日", icon: "🎯", description: "7日連続で回答" },
+    { id: "1", name: "環境構築職人", icon: "🔧", description: "環境構築タグで10件解決" },
+    { id: "2", name: "今週のヒーロー", icon: "🦸", description: "1週間で5件以上解決" },
     { id: "3", name: "初めての解決", icon: "🌟", description: "初めてベストアンサーを獲得" },
     { id: "4", name: "いいね100", icon: "❤️", description: "累計いいね100達成" },
-    { id: "5", name: "質問王", icon: "👑", description: "質問が10いいね以上獲得" },
-    { id: "6", name: "早起き回答者", icon: "🌅", description: "朝6時前に回答" },
   ],
   recentActivities: [
-    { id: "1", type: "solved", title: "useEffectの質問を解決", time: "2時間前", questionId: "1" },
-    { id: "2", type: "answer", title: "環境構築の質問に回答", time: "昨日", questionId: "2" },
-    { id: "3", type: "answer", title: "TypeScriptの型エラーに回答", time: "2日前", questionId: "3" },
-    { id: "4", type: "question", title: "Next.js 14のキャッシュについて質問", time: "3日前", questionId: "10" },
-    { id: "5", type: "solved", title: "Dockerの質問を解決", time: "4日前", questionId: "6" },
+    { id: "1", type: "best", title: "useEffectの質問でベストアンサー獲得", time: "2時間前", points: 50, questionId: "1" },
+    { id: "2", type: "answer", title: "環境構築の質問に回答", time: "昨日", points: 10, questionId: "2" },
+    { id: "3", type: "empathy", title: "共感を5件もらいました", time: "2日前", points: 10, questionId: "3" },
+    { id: "4", type: "question", title: "Next.js 14のキャッシュについて質問", time: "3日前", points: 5, questionId: "10" },
+    { id: "5", type: "best", title: "Dockerの質問でベストアンサー獲得", time: "4日前", points: 50, questionId: "6" },
   ],
 };
 
-function getTitleColor(title: string) {
-  switch (title) {
-    case "ベテラン回答者":
-      return "bg-amber-100 text-amber-700 border-amber-300";
-    case "中級者":
-      return "bg-blue-100 text-blue-700 border-blue-300";
-    case "初心者":
-      return "bg-emerald-100 text-emerald-700 border-emerald-300";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-300";
-  }
-}
-
 export default function ProfilePage() {
-  const TitleIcon = userData.titleIcon;
+  const rank = getRank(userData.points);
+  const nextRank = getNextRank(userData.points);
+  const progress = nextRank ? (userData.points / nextRank.required) * 100 : 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,71 +90,66 @@ export default function ProfilePage() {
 
                 {/* プロフィール情報 */}
                 <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-2xl font-bold">{userData.displayName}</h1>
-                        <Badge
-                          variant="outline"
-                          className={`gap-1.5 px-3 py-1 ${getTitleColor(userData.title)}`}
-                        >
-                          <TitleIcon className="h-4 w-4" />
-                          {userData.title}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground mb-3">@{userData.name}</p>
-                      <p className="text-foreground mb-4 max-w-xl">{userData.bio}</p>
-                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {userData.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <LinkIcon className="h-4 w-4" />
-                          <a href={userData.website} className="text-primary hover:underline">
-                            {userData.website.replace("https://", "")}
-                          </a>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {userData.joinedAt}から参加
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline">
-                        <Edit className="h-4 w-4 mr-1.5" />
-                        プロフィールを編集
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Settings className="h-5 w-5" />
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-2xl font-bold">{userData.displayName}</h1>
+                    <Badge
+                      variant="outline"
+                      className={`gap-1.5 px-3 py-1 ${rank.color}`}
+                    >
+                      <span>{rank.icon}</span>
+                      {rank.name}
+                    </Badge>
                   </div>
+                  <p className="text-muted-foreground mb-4">@{userData.name}</p>
+
+                  {/* ポイント表示 */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <Zap className="h-6 w-6 text-amber-500" />
+                    <span className="text-3xl font-bold text-foreground">{userData.points}</span>
+                    <span className="text-lg text-muted-foreground">pt</span>
+                  </div>
+
+                  {/* ランクアップ進捗 */}
+                  {nextRank && (
+                    <div className="max-w-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Award className="h-5 w-5 text-primary" />
+                          <span className="text-sm font-medium">次のランク: {nextRank.icon} {nextRank.name}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{userData.points} / {nextRank.required}</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-gray-200">
+                        <div
+                          className="h-2 rounded-full bg-gradient-to-r from-primary to-amber-500 transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        あと{nextRank.required - userData.points}ptで「{nextRank.name}」に昇格！
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* 統計 */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 pt-6 border-t">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">{userData.stats.solvedCount}</div>
-                  <div className="text-sm text-muted-foreground">解決数</div>
+              {/* ポイント内訳 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
+                  <div className="text-2xl font-bold text-foreground">{userData.stats.questionCount}</div>
+                  <div className="text-xs text-muted-foreground">質問 (+5pt)</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">{userData.stats.bestAnswerRate}%</div>
-                  <div className="text-sm text-muted-foreground">ベスト率</div>
+                <div className="text-center p-3 rounded-lg bg-muted/50">
+                  <div className="text-2xl font-bold text-foreground">{userData.stats.answerCount}</div>
+                  <div className="text-xs text-muted-foreground">回答 (+10pt)</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">{userData.stats.totalAnswers}</div>
-                  <div className="text-sm text-muted-foreground">総回答数</div>
+                <div className="text-center p-3 rounded-lg bg-primary/10">
+                  <div className="text-2xl font-bold text-primary">{userData.stats.bestAnswerCount}</div>
+                  <div className="text-xs text-muted-foreground">ベストアンサー (+50pt)</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-foreground">{userData.stats.totalQuestions}</div>
-                  <div className="text-sm text-muted-foreground">総質問数</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">{userData.stats.weeklyContribution}</div>
-                  <div className="text-sm text-muted-foreground">今週の貢献</div>
+                <div className="text-center p-3 rounded-lg bg-muted/50">
+                  <div className="text-2xl font-bold text-foreground">{userData.stats.empathyReceived}</div>
+                  <div className="text-xs text-muted-foreground">共感された (+2pt)</div>
                 </div>
               </div>
             </CardContent>
@@ -175,75 +158,56 @@ export default function ProfilePage() {
           <div className="flex gap-6">
             {/* メインコンテンツ */}
             <div className="flex-1">
-              <Tabs defaultValue="activity" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="activity">活動履歴</TabsTrigger>
-                  <TabsTrigger value="answers">回答一覧</TabsTrigger>
-                  <TabsTrigger value="questions">質問一覧</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="activity">
-                  <Card>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-4">最近の活動</h3>
-                      <div className="space-y-4">
-                        {userData.recentActivities.map((activity) => (
-                          <Link
-                            key={activity.id}
-                            href={`/questions/${activity.questionId}`}
-                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition-colors"
-                          >
-                            <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                                activity.type === "solved"
-                                  ? "bg-primary/10"
-                                  : activity.type === "answer"
-                                  ? "bg-blue-100"
-                                  : "bg-amber-100"
-                              }`}
-                            >
-                              {activity.type === "solved" ? (
-                                <CheckCircle2 className="h-5 w-5 text-primary" />
-                              ) : activity.type === "answer" ? (
-                                <MessageCircle className="h-5 w-5 text-blue-600" />
-                              ) : (
-                                <MessageCircle className="h-5 w-5 text-amber-600" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground">
-                                {activity.title}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {activity.time}
-                              </p>
-                            </div>
-                            <Badge variant="secondary" className="shrink-0">
-                              {activity.type === "solved" ? "解決" : activity.type === "answer" ? "回答" : "質問"}
-                            </Badge>
-                          </Link>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="answers">
-                  <Card>
-                    <CardContent className="p-6 text-center text-muted-foreground">
-                      回答一覧がここに表示されます
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="questions">
-                  <Card>
-                    <CardContent className="p-6 text-center text-muted-foreground">
-                      質問一覧がここに表示されます
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-amber-500" />
+                    ポイント獲得履歴
+                  </h3>
+                  <div className="space-y-4">
+                    {userData.recentActivities.map((activity) => (
+                      <Link
+                        key={activity.id}
+                        href={`/questions/${activity.questionId}`}
+                        className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                            activity.type === "best"
+                              ? "bg-amber-100"
+                              : activity.type === "answer"
+                              ? "bg-blue-100"
+                              : activity.type === "empathy"
+                              ? "bg-pink-100"
+                              : "bg-emerald-100"
+                          }`}
+                        >
+                          {activity.type === "best" ? (
+                            <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                          ) : activity.type === "answer" ? (
+                            <MessageCircle className="h-5 w-5 text-blue-600" />
+                          ) : activity.type === "empathy" ? (
+                            <span className="text-lg">❤️</span>
+                          ) : (
+                            <span className="text-lg">❓</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground">
+                            {activity.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {activity.time}
+                          </p>
+                        </div>
+                        <Badge className="shrink-0 bg-primary/10 text-primary border-0">
+                          +{activity.points}pt
+                        </Badge>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* サイドパネル */}
@@ -277,11 +241,11 @@ export default function ProfilePage() {
                 <Card>
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-3 text-sm">獲得バッジ</h3>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {userData.badges.map((badge) => (
                         <div
                           key={badge.id}
-                          className="flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                          className="flex flex-col items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                           title={badge.description}
                         >
                           <span className="text-2xl mb-1">{badge.icon}</span>
@@ -291,30 +255,6 @@ export default function ProfilePage() {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* ランクアップ進捗 */}
-                <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-amber-50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Award className="h-6 w-6 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">次のランクまで</p>
-                        <p className="text-xs text-muted-foreground">
-                          あと3問解決で「マスター」に昇格
-                        </p>
-                      </div>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-gray-200">
-                      <div
-                        className="h-2.5 rounded-full bg-gradient-to-r from-primary to-amber-500"
-                        style={{ width: "94%" }}
-                      />
-                    </div>
-                    <p className="mt-2 text-right text-xs text-muted-foreground">
-                      47 / 50
-                    </p>
                   </CardContent>
                 </Card>
               </div>

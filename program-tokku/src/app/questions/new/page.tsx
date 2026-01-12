@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { PointModal } from "@/components/point-modal";
 import { cn } from "@/lib/utils";
 
 const languageTags = ["Python", "JavaScript", "TypeScript", "React", "Node.js", "Vue", "Go", "Java", "Ruby", "PHP"];
@@ -30,6 +31,7 @@ export default function NewQuestionPage() {
   const [content, setContent] = useState("");
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [showPointModal, setShowPointModal] = useState(false);
 
   const toggleLanguage = (tag: string) => {
     if (selectedLanguages.includes(tag)) {
@@ -42,6 +44,13 @@ export default function NewQuestionPage() {
   const handleSubmit = () => {
     if (!title.trim() || !content.trim()) return;
     console.log("Submit:", { title, content, selectedLanguages, selectedCategory });
+
+    // ポイント獲得モーダルを表示
+    setShowPointModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowPointModal(false);
     router.push("/");
   };
 
@@ -206,13 +215,16 @@ export default function NewQuestionPage() {
                     <Button variant="outline" onClick={() => router.back()}>
                       キャンセル
                     </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={!isValid}
-                      size="lg"
-                    >
-                      質問を投稿する
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={!isValid}
+                        size="lg"
+                      >
+                        質問を投稿する
+                      </Button>
+                      <span className="text-sm text-muted-foreground">+5pt</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -277,6 +289,14 @@ export default function NewQuestionPage() {
           </div>
         </main>
       </div>
+
+      {/* ポイント獲得モーダル */}
+      <PointModal
+        isOpen={showPointModal}
+        onClose={handleModalClose}
+        points={5}
+        message="質問を投稿しました！みんなからの回答を待ちましょう"
+      />
     </div>
   );
 }

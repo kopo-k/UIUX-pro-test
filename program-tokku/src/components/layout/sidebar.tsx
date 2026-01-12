@@ -5,30 +5,33 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   FolderOpen,
-  Trophy,
   User,
-  TrendingUp,
-  Tag,
-  HelpCircle,
-  Flame,
+  Star,
+  Zap,
+  Trophy,
+  Target,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 const mainNavItems = [
   { href: "/", icon: Home, label: "ホーム" },
   { href: "/categories", icon: FolderOpen, label: "カテゴリ" },
-  { href: "/ranking", icon: Trophy, label: "ランキング" },
   { href: "/profile", icon: User, label: "マイページ" },
 ];
 
-const popularTags = [
-  { name: "React", count: 156, isHot: true },
-  { name: "Python", count: 234, isHot: true },
-  { name: "TypeScript", count: 98, isHot: false },
-  { name: "JavaScript", count: 189, isHot: false },
-  { name: "Node.js", count: 87, isHot: false },
+const pointRules = [
+  { action: "質問投稿", points: 5, icon: "❓" },
+  { action: "回答投稿", points: 10, icon: "💬" },
+  { action: "ベストアンサー", points: 50, icon: "🏆" },
+  { action: "共感をもらう", points: 2, icon: "❤️" },
+];
+
+const ranks = [
+  { name: "ビギナー", points: 0, icon: "🌱" },
+  { name: "デベロッパー", points: 500, icon: "💻" },
+  { name: "ウィザード", points: 1000, icon: "🧙" },
 ];
 
 export function Sidebar() {
@@ -63,27 +66,26 @@ export function Sidebar() {
         {/* 区切り線 */}
         <div className="border-t" />
 
-        {/* 人気のタグ */}
+        {/* ポイント獲得ルール */}
         <div>
           <h3 className="flex items-center gap-2 px-3 mb-3 text-sm font-semibold text-foreground">
-            <Tag className="h-4 w-4" />
-            人気のタグ
+            <Zap className="h-4 w-4 text-amber-500" />
+            ポイントの貯め方
           </h3>
-          <div className="space-y-1">
-            {popularTags.map((tag) => (
-              <Link
-                key={tag.name}
-                href={`/categories/${tag.name.toLowerCase()}`}
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          <div className="space-y-2">
+            {pointRules.map((rule) => (
+              <div
+                key={rule.action}
+                className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50"
               >
-                <span className="flex items-center gap-2">
-                  {tag.name}
-                  {tag.isHot && <Flame className="h-3.5 w-3.5 text-orange-500" />}
+                <span className="flex items-center gap-2 text-sm">
+                  <span>{rule.icon}</span>
+                  {rule.action}
                 </span>
-                <Badge variant="secondary" className="text-xs">
-                  {tag.count}
-                </Badge>
-              </Link>
+                <span className="text-sm font-bold text-primary">
+                  +{rule.points}pt
+                </span>
+              </div>
             ))}
           </div>
         </div>
@@ -91,34 +93,56 @@ export function Sidebar() {
         {/* 区切り線 */}
         <div className="border-t" />
 
-        {/* 統計カード */}
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">今日の統計</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary">24</div>
-                <div className="text-xs text-muted-foreground">新規質問</div>
+        {/* ランク一覧 */}
+        <div>
+          <h3 className="flex items-center gap-2 px-3 mb-3 text-sm font-semibold text-foreground">
+            <Trophy className="h-4 w-4 text-amber-500" />
+            ランク一覧
+          </h3>
+          <div className="space-y-2">
+            {ranks.map((rank) => (
+              <div
+                key={rank.name}
+                className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <span className="flex items-center gap-2 text-sm">
+                  <span className="text-lg">{rank.icon}</span>
+                  {rank.name}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {rank.points}pt〜
+                </span>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">67</div>
-                <div className="text-xs text-muted-foreground">解決済み</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </div>
 
-        {/* ヘルプリンク */}
-        <Link
-          href="/help"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <HelpCircle className="h-4 w-4" />
-          ヘルプ・ガイド
-        </Link>
+        {/* 区切り線 */}
+        <div className="border-t" />
+
+        {/* バッジ例 */}
+        <div>
+          <h3 className="flex items-center gap-2 px-3 mb-3 text-sm font-semibold text-foreground">
+            <Star className="h-4 w-4 text-amber-500" />
+            獲得できるバッジ
+          </h3>
+          <div className="space-y-2 px-3">
+            <div className="flex items-start gap-2 text-sm">
+              <span className="text-lg">🔧</span>
+              <div>
+                <p className="font-medium">環境構築職人</p>
+                <p className="text-xs text-muted-foreground">環境構築タグで10件解決</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-sm">
+              <span className="text-lg">🦸</span>
+              <div>
+                <p className="font-medium">今週のヒーロー</p>
+                <p className="text-xs text-muted-foreground">1週間で5件以上解決</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   );
