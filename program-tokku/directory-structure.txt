@@ -1,0 +1,73 @@
+program-tokku フロントエンド ディレクトリ構造
+============================================
+
+frontend/
+├── package.json              # 依存パッケージ
+├── tsconfig.json             # TypeScript設定
+├── components.json           # shadcn/ui設定
+├── tailwind.config.js        # Tailwind CSS設定
+├── postcss.config.js         # PostCSS設定
+│
+└── src/
+    ├── app/                  # Next.js App Router
+    │   ├── layout.tsx        # 共通レイアウト
+    │   ├── page.tsx          # ホームページ（質問一覧）
+    │   ├── globals.css       # グローバルCSS
+    │   │
+    │   ├── (auth)/           # 認証関連ページ
+    │   │   ├── login/page.tsx
+    │   │   ├── register/page.tsx
+    │   │   └── reset-password/page.tsx
+    │   │
+    │   ├── profile/          # プロフィールページ
+    │   │   └── page.tsx
+    │   │
+    │   ├── questions/        # 質問関連ページ
+    │   │   ├── new/page.tsx  # 質問投稿
+    │   │   └── [id]/page.tsx # 質問詳細
+    │   │
+    │   └── categories/       # カテゴリページ
+    │       ├── page.tsx
+    │       └── [id]/page.tsx
+    │
+    ├── components/
+    │   ├── layout/           # レイアウトコンポーネント
+    │   │   ├── header.tsx    # ヘッダー
+    │   │   ├── sidebar.tsx   # サイドバー
+    │   │   └── bottom-nav.tsx # モバイル用ナビ
+    │   │
+    │   ├── ui/               # shadcn/ui コンポーネント
+    │   │   ├── avatar.tsx
+    │   │   ├── badge.tsx
+    │   │   ├── button.tsx
+    │   │   ├── card.tsx
+    │   │   ├── dialog.tsx
+    │   │   ├── dropdown-menu.tsx
+    │   │   ├── input.tsx
+    │   │   ├── label.tsx
+    │   │   ├── sonner.tsx
+    │   │   ├── tabs.tsx
+    │   │   └── textarea.tsx
+    │   │
+    │   └── point-modal.tsx   # ポイント獲得モーダル
+    │
+    └── lib/
+        └── utils.ts          # ユーティリティ関数（cn()）
+
+
+============================================
+セットアップ手順
+============================================
+
+1. Tailwind CSS インストール
+   npm install -D tailwindcss@3 postcss autoprefixer
+   ./node_modules/.bin/tailwindcss init -p
+
+2. shadcn/ui 初期化
+   npx shadcn@latest init
+
+3. コンポーネント追加
+   npx shadcn@latest add button card input badge avatar dialog dropdown-menu tabs textarea label
+
+4. アイコン追加
+   npm install lucide-react
